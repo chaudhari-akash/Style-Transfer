@@ -18,6 +18,9 @@ from fastapi.responses import JSONResponse # type: ignore
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY # type: ignore
 import logging 
 
+
+
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -55,6 +58,10 @@ except FileNotFoundError as e:
     logger.error(f"❌ Failed to load Model State Dictionary: {e}")
 except Exception as e:
     logger.error(f"❌ Failed to load Model State Dictionary: {e}")
+    
+    
+
+
 
 # --- Setup device ---
 
@@ -149,6 +156,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 # --- Health Check Endpoint ---
 
 @app.get("/health")
+
 async def health_check():
     status = {"status": "ok", "device": str(device)}
     if not all([cloud_name, api_key, api_secret]):
@@ -171,6 +179,7 @@ async def health_check():
 # --- Main Endpoint to Process Images ---
 
 @app.post("/process-images-from-urls/")
+
 async def process_images_from_urls(urls: ImageUrls):
     image1_url = urls.image1_url
     image2_url = urls.image2_url
@@ -296,5 +305,6 @@ async def process_images_from_urls(urls: ImageUrls):
 
 # --- Root Endpoint ---
 @app.get("/")
+
 async def read_root():
     return {"message": "Style Transfer API is running. Use /process-images-from-urls/ to process images."}
