@@ -1,7 +1,116 @@
+// pipeline {
+//     agent any
+
+//     triggers {
+//         githubPush()
+//     }
+
+//     environment {
+//         DOCKER_FRONTEND_NAME = 'frontend'
+//         DOCKER_BACKEND_NAME = 'backend'
+//         GITHUB_REPO_URL = 'https://github.com/chaudhari-akash/Style-Transfer.git'
+//         KUBECONFIG = '/tmp/kubeconfig'
+//     }
+
+//     stages {
+
+//         stage('Git Clone') {
+//             steps {
+//                 script {
+//                     git branch: 'main', url: "${GITHUB_REPO_URL}"
+//                 }
+//             }
+//         }
+
+//         stage('Build Frontend Image') {
+//             steps {
+//                 script {
+//                     docker.build("${DOCKER_FRONTEND_NAME}", './frontend')
+//                 }
+//             }
+//         }
+
+//          stage('Build Backend Image') {
+//             steps {
+//                 script {
+//                     docker.build("${DOCKER_BACKEND_NAME}", './backend')
+//                 }
+//             }
+//         }
+
+//         stage('Push Frontend Image') {
+//             steps {
+//                 script{
+//                     docker.withRegistry('', 'DockerHubCred') {
+//                         sh 'docker tag frontend:latest chaudhariakash/frontend:latest'
+//                         sh 'docker push chaudhariakash/frontend:latest'
+//                     }
+//                 }
+//             }
+//         }
+        
+
+
+//         stage('Push Backend Image') {
+//             steps {
+//                 script{
+//                     docker.withRegistry('', 'DockerHubCred') {
+//                         sh 'docker tag backend:latest chaudhariakash/backend:latest'
+//                         sh 'docker push chaudhariakash/backend:latest'
+//                     }
+//                 }
+//             }
+//         }
+
+//         stage('Run Ansible Playbook') {
+//             steps {
+//                 script {
+
+//                     withCredentials([string(credentialsId: 'kubeconfig-secret-text', variable: 'KUBECONFIG_CONTENT')]) {
+//                     sh '''
+//                       echo "$KUBECONFIG_CONTENT" > $KUBECONFIG
+//                       chmod 600 $KUBECONFIG
+//                     '''
+
+//                     withEnv(["ANSIBLE_HOST_KEY_CHECKING=False"]) {
+//                         ansiblePlaybook(
+//                             playbook: 'deploy.yml',
+//                             inventory: 'inventory'
+//                         )
+//                     }
+
+//                     // sh 'kubectl apply -f k8s/model-pv.yaml'
+//                     sh 'ls'
+//                     sh 'pwd'
+//                 }
+//             }
+//         }
+//     }
+
+//     post {
+//         success {
+//            mail to: 'Chaudhari.Akash@iiitb.ac.in',
+//                 subject: "Application Deployment SUCCESS: Build ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+//                 body: "The build was successful!"
+//         }
+//         failure {
+//             mail to: 'Chaudhari.Akash@iiitb.ac.in',
+//                  subject: "Application Deployment FAILURE: Build ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+//                  body: "The build failed."
+//         }
+//          always {
+//             cleanWs()
+//          }
+//     }
+// }
+
+
 pipeline {
     agent any
 
     triggers {
+        // Use appropriate trigger, e.g., pollSCM or GitHub webhook trigger plugin
+        // Example: pollSCM('* * * * *')  // polls every minute
         githubPush()
     }
 
@@ -30,7 +139,7 @@ pipeline {
             }
         }
 
-         stage('Build Backend Image') {
+        stage('Build Backend Image') {
             steps {
                 script {
                     docker.build("${DOCKER_BACKEND_NAME}", './backend')
@@ -40,7 +149,7 @@ pipeline {
 
         stage('Push Frontend Image') {
             steps {
-                script{
+                script {
                     docker.withRegistry('', 'DockerHubCred') {
                         sh 'docker tag frontend:latest chaudhariakash/frontend:latest'
                         sh 'docker push chaudhariakash/frontend:latest'
@@ -48,12 +157,10 @@ pipeline {
                 }
             }
         }
-        
-
 
         stage('Push Backend Image') {
             steps {
-                script{
+                script {
                     docker.withRegistry('', 'DockerHubCred') {
                         sh 'docker tag backend:latest chaudhariakash/backend:latest'
                         sh 'docker push chaudhariakash/backend:latest'
@@ -65,23 +172,20 @@ pipeline {
         stage('Run Ansible Playbook') {
             steps {
                 script {
-
                     withCredentials([string(credentialsId: 'kubeconfig-secret-text', variable: 'KUBECONFIG_CONTENT')]) {
-                    sh '''
-                      echo "$KUBECONFIG_CONTENT" > $KUBECONFIG
-                      chmod 600 $KUBECONFIG
-                    '''
-
-                    withEnv(["ANSIBLE_HOST_KEY_CHECKING=False"]) {
-                        ansiblePlaybook(
-                            playbook: 'deploy.yml',
-                            inventory: 'inventory'
-                        )
+                        sh '''
+                          echo "$KUBECONFIG_CONTENT" > $KUBECONFIG
+                          chmod 600 $KUBECONFIG
+                        '''
+                        withEnv(["ANSIBLE_HOST_KEY_CHECKING=False"]) {
+                            ansiblePlaybook(
+                                playbook: 'deploy.yml',
+                                inventory: 'inventory'
+                            )
+                        }
+                        sh 'ls'
+                        sh 'pwd'
                     }
-
-                    // sh 'kubectl apply -f k8s/model-pv.yaml'
-                    sh 'ls'
-                    sh 'pwd'
                 }
             }
         }
@@ -89,19 +193,17 @@ pipeline {
 
     post {
         success {
-           mail to: 'Chaudhari.Akash@iiitb.ac.in',
-                subject: "Application Deployment SUCCESS: Build ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "The build was successful!"
+            mail to: 'Chaudhari.Akash@iiitb.ac.in',
+                 subject: "Application Deployment SUCCESS: Build ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "The build was successful!"
         }
         failure {
             mail to: 'Chaudhari.Akash@iiitb.ac.in',
                  subject: "Application Deployment FAILURE: Build ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                  body: "The build failed."
         }
-         always {
+        always {
             cleanWs()
-         }
+        }
     }
 }
-
-
