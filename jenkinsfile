@@ -1,0 +1,94 @@
+pipeline {
+    agent any
+
+    triggers {
+        githubPush()
+    }
+
+    environment {
+        DOCKER_FRONTEND_NAME = 'frontend'
+        DOCKER_BACKEND_NAME = 'backend'
+        GITHUB_REPO_URL = 'https://github.com/chaudhari-akash/Style-Transfer.git'
+    }
+
+    stages {
+
+        stage('Git Clone') {
+            steps {
+                script {
+                    git branch: 'main', url: "${GITHUB_REPO_URL}"
+                }
+            }
+        }
+
+        stage('Build Frontend Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_FRONTEND_NAME}", './frontend')
+                }
+            }
+        }
+
+         stage('Build Backend Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_BACKEND_NAME}", './backend')
+                }
+            }
+        }
+
+        stage('Push Frontend Image') {
+            steps {
+                script{
+                    docker.withRegistry('', 'DockerHubCred') {
+                        sh 'docker tag frontend:latest chaudhariakash/frontend:latest'
+                        sh 'docker push chaudhariakash/frontend:latest'
+                    }
+                }
+            }
+        }
+
+
+        stage('Push Backend Image') {
+            steps {
+                script{
+                    docker.withRegistry('', 'DockerHubCred') {
+                        sh 'docker tag backend:latest chaudhariakash/backend:latest'
+                        sh 'docker push chaudhariakash/backend:latest'
+                    }
+                }
+            }
+        }
+
+        stage('Run Ansible Playbook') {
+            steps {
+                script {
+                    withEnv(["ANSIBLE_HOST_KEY_CHECKING=False"]) {
+                        ansiblePlaybook(
+                            playbook: 'ansible/deploy.yml',
+                            inventory: 'ansible/inventory'
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+           mail to: 'Chaudhari.Akash@iiitb.ac.in',
+                subject: "Application Deployment SUCCESS: Build ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "The build was successful!"
+        }
+        failure {
+            mail to: 'Chaudhari.Akash@iiitb.ac.in',
+                 subject: "Application Deployment FAILURE: Build ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "The build failed."
+        }
+         always {
+            cleanWs()
+         }
+    }
+}
+
+
