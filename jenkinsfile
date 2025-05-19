@@ -71,7 +71,9 @@ pipeline {
                     //     )
                     // }
 
-                    sh 'kubectl apply -f ../k8s/model-pv.yaml'
+                    // sh 'kubectl apply -f ../k8s/model-pv.yaml'
+                    sh 'ls'
+                    sh 'pwd'
                 }
             }
         }
