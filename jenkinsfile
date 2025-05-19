@@ -169,10 +169,18 @@ pipeline {
             }
         }
 
-stage('Deploy to Kubernetes') {
+        stage('Deploy to Kubernetes') {
             steps {
-                // Run kubectl directly
-                sh 'kubectl apply -f model-pv.yaml'
+                sh 'kubectl apply -f /k8s/model-pv.yaml'
+                sh 'kubectl apply -f /k8s/model-pvc.yaml'
+                sh 'kubectl apply -f /k8s/model-uploader.yaml'
+                sh 'kubectl apply -f /k8s/cloudinary-secrets.yaml'
+                sh 'kubectl apply -f /k8s/configmap.yaml'
+                sh 'kubectl apply -f /k8s/backend-service.yaml'
+                sh 'kubectl apply -f /k8s/frontend-service.yaml'
+                sh 'kubectl apply -f /k8s/backend-deployment.yaml'
+                sh 'kubectl apply -f /k8s/frontend-deployment.yaml'
+                sh 'kubectl apply -f /k8s/backend-hpa.yaml'
             }
         }
     }
