@@ -11,7 +11,7 @@
 
     - name: Start Minikube with Docker driver if not running
       shell: minikube start --driver=docker
-      when: minikube_status.stdout != "Running"
+      when: minikube_status.rc != 0 or minikube_status.stdout != "Running"
 
     - name: Apply model-pv
       shell: kubectl apply -f ./k8s/model-pv.yaml
