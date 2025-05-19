@@ -4,14 +4,9 @@
   gather_facts: false
   tasks:
 
-    - name: Check if Minikube is running
-      shell: minikube status --format '{{.Host}}'
-      register: minikube_status
-      ignore_errors: true
-
-    - name: Start Minikube with Docker driver if not running
+    - name: Start Minikube with Docker driver
       shell: minikube start --driver=docker
-      when: minikube_status.rc != 0 or minikube_status.stdout != "Running"
+      ignore_errors: true
 
     - name: Apply model-pv
       shell: kubectl apply -f ./k8s/model-pv.yaml
