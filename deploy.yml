@@ -1,10 +1,7 @@
 ---
-- name: Deploying with Kubernetes
+- name: Stage 1 - Set up virtual environment and install packages
   hosts: localhost
-  vars:
-    ansible_python_interpreter: /tmp/ansible_venv/bin/python
   tasks:
-
     - name: Create virtual environment
       command: python3 -m venv /tmp/ansible_venv
       args:
@@ -18,6 +15,11 @@
           - pyyaml
           - kubernetes
 
+- name: Stage 2 - Deploy with Kubernetes using venv interpreter
+  hosts: localhost
+  vars:
+    ansible_python_interpreter: /tmp/ansible_venv/bin/python
+  tasks:
     - name: Apply PV
       kubernetes.core.k8s:
         state: present
