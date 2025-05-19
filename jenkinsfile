@@ -172,7 +172,7 @@ pipeline {
         stage('Run Ansible Playbook') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'kubeconfig-b64-secret', variable: 'KUBECONFIG_B64')]) {
+                    withCredentials([string(credentialsId: 'kubeconfig-secret', variable: 'KUBECONFIG_B64')]) {
                         sh '''
                           echo "$KUBECONFIG_B64" | base64 -d > $KUBECONFIG
                           chmod 600 $KUBECONFIG
