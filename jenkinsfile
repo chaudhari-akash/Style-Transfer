@@ -172,9 +172,9 @@ pipeline {
         stage('Run Ansible Playbook') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'kubeconfig-secret-text', variable: 'KUBECONFIG_CONTENT')]) {
+                    withCredentials([string(credentialsId: 'kubeconfig-b64-secret', variable: 'KUBECONFIG_B64')]) {
                         sh '''
-                          echo "$KUBECONFIG_CONTENT" > $KUBECONFIG
+                          echo "$KUBECONFIG_B64" | base64 -d > $KUBECONFIG
                           chmod 600 $KUBECONFIG
                         '''
                         withEnv(["ANSIBLE_HOST_KEY_CHECKING=False"]) {
