@@ -1,6 +1,5 @@
 - name: Apply Kubernetes manifests using kubectl
   hosts: localhost
-  connection: local
   gather_facts: no
   tasks:
     - name: Apply Kubernetes manifest files
