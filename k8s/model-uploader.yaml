@@ -4,7 +4,7 @@ metadata:
   name: model-uploader
   namespace: default
 spec:
-  ttlSecondsAfterFinished: 100
+  ttlSecondsAfterFinished: 2
   template:
     spec:
       restartPolicy: OnFailure
