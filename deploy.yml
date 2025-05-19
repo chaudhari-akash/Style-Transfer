@@ -1,71 +1,33 @@
 ---
-- name: Stage 1 - Set up virtual environment and install packages
+- name: Deploy Kubernetes Resources using kubectl
   hosts: localhost
   tasks:
-    - name: Create virtual environment
-      command: python3 -m venv /tmp/ansible_venv
-      args:
-        creates: /tmp/ansible_venv
-
-    - name: Install pre-requisites in venv
-      pip:
-        virtualenv: /tmp/ansible_venv
-        name:
-          - openshift
-          - pyyaml
-          - kubernetes
-
-- name: Stage 2 - Deploy with Kubernetes using venv interpreter
-  hosts: localhost
-  vars:
-    ansible_python_interpreter: /tmp/ansible_venv/bin/python
-  tasks:
-    - name: Apply PV
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8s/model-pv.yaml') | from_yaml }}"
-
-    - name: Apply PVC
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8s/model-pvc.yaml') | from_yaml }}"
-
-    - name: Upload Model
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8s/model-uploader.yaml') | from_yaml }}"
-
-    - name: Secrets
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8s/cloudinary-secrets.yaml') | from_yaml }}"
-
-    - name: Create Config Map
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8/configmap.yaml') | from_yaml }}"
-
-    - name: Create Frontend Deployment
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8/frontend-deployment.yaml') | from_yaml }}"
-
-    - name: Create Frontend Service
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8/frontend-service.yaml') | from_yaml }}"
-
-    - name: Create Backend Deployment
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8/backend-deployment.yaml') | from_yaml }}"
-
-    - name: Create Backend Service
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8/backend-service.yaml') | from_yaml }}"
-
-    - name: Create HPA
-      kubernetes.core.k8s:
-        state: present
-        definition: "{{ lookup('file', './k8/backend-hpa.yaml') | from_yaml }}"
+    - name: Apply model-pv
+      shell: kubectl apply -f ./k8s/model-pv.yaml
+      
+    - name: Apply model-pvc
+      shell: kubectl apply -f ./k8s/model-pvc.yaml
+      
+    - name: Apply model-uploader
+      shell: kubectl apply -f ./k8s/model-uploader.yaml
+      
+    - name: Apply cloudinary-secrets
+      shell: kubectl apply -f ./k8s/cloudinary-secrets.yaml
+      
+    - name: Apply configmap
+      shell: kubectl apply -f ./k8s/configmap.yaml
+      
+    - name: Apply backend-service
+      shell: kubectl apply -f ./k8s/backend-service.yaml
+      
+    - name: Apply frontend-service
+      shell: kubectl apply -f ./k8s/frontend-service.yaml
+      
+    - name: Apply backend-deployment
+      shell: kubectl apply -f ./k8s/backend-deployment.yaml
+      
+    - name: Apply frontend-deployment
+      shell: kubectl apply -f ./k8s/frontend-deployment.yaml
+      
+    - name: Apply backend-hpa
+      shell: kubectl apply -f ./k8s/backend-hpa.yaml
