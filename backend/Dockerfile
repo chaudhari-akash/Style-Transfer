@@ -10,8 +10,6 @@ COPY app.py ./
 
 COPY model.py ./
 
-COPY models/ ./models/
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000

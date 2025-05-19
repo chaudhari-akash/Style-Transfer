@@ -43,7 +43,8 @@ else:
 # --- Load Model ---
 
 model = Model() 
-model_state_dict_path = 'models/model_state.pth'
+# model_state_dict_path = 'models/model_state.pth'
+model_state_dict_path = os.environ.get("MODEL_PATH")
 
 try:
     if not os.path.exists(model_state_dict_path):
