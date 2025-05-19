@@ -9,6 +9,7 @@ pipeline {
         DOCKER_FRONTEND_NAME = 'frontend'
         DOCKER_BACKEND_NAME = 'backend'
         GITHUB_REPO_URL = 'https://github.com/chaudhari-akash/Style-Transfer.git'
+        KUBECONFIG = '/tmp/kubeconfig'
     }
 
     stages {
@@ -64,6 +65,13 @@ pipeline {
         stage('Run Ansible Playbook') {
             steps {
                 script {
+
+                    withCredentials([string(credentialsId: 'kubeconfig-secret-text', variable: 'KUBECONFIG_CONTENT')]) {
+                    sh '''
+                      echo "$KUBECONFIG_CONTENT" > $KUBECONFIG
+                      chmod 600 $KUBECONFIG
+                    '''
+
                     withEnv(["ANSIBLE_HOST_KEY_CHECKING=False"]) {
                         ansiblePlaybook(
                             playbook: 'deploy.yml',
