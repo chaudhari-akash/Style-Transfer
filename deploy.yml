@@ -1,10 +1,18 @@
 ---
 - name: Deploying with Kubernetes
   hosts: localhost
+  vars:
+    ansible_python_interpreter: /tmp/ansible_venv/bin/python
   tasks:
 
-    - name: Install pre-requisites
+    - name: Create virtual environment
+      command: python3 -m venv /tmp/ansible_venv
+      args:
+        creates: /tmp/ansible_venv
+
+    - name: Install pre-requisites in venv
       pip:
+        virtualenv: /tmp/ansible_venv
         name:
           - openshift
           - pyyaml
