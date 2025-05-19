@@ -1,0 +1,61 @@
+---
+- name: Deploying with Kubernetes
+  hosts: localhost
+  tasks:
+
+    - name: Install pre-requisites
+      pip:
+        name:
+          - openshift
+          - pyyaml
+          - kubernetes
+
+    - name: Apply PV
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8s/model-pv.yaml') | from_yaml }}"
+
+    - name: Apply PVC
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8s/model-pvc.yaml') | from_yaml }}"
+
+    - name: Upload Model
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8s/model-uploader.yaml') | from_yaml }}"
+
+    - name: Secrets
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8s/cloudinary-secrets.yaml') | from_yaml }}"
+
+    - name: Create Config Map
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8/configmap.yaml') | from_yaml }}"
+
+    - name: Create Frontend Deployment
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8/frontend-deployment.yaml') | from_yaml }}"
+
+    - name: Create Frontend Service
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8/frontend-service.yaml') | from_yaml }}"
+
+    - name: Create Backend Deployment
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8/backend-deployment.yaml') | from_yaml }}"
+
+    - name: Create Backend Service
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8/backend-service.yaml') | from_yaml }}"
+
+    - name: Create HPA
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './k8/backend-hpa.yaml') | from_yaml }}"
