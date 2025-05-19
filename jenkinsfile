@@ -64,12 +64,14 @@ pipeline {
         stage('Run Ansible Playbook') {
             steps {
                 script {
-                    withEnv(["ANSIBLE_HOST_KEY_CHECKING=False"]) {
-                        ansiblePlaybook(
-                            playbook: 'ansible/deploy.yml',
-                            inventory: 'ansible/inventory'
-                        )
-                    }
+                    // withEnv(["ANSIBLE_HOST_KEY_CHECKING=False"]) {
+                    //     ansiblePlaybook(
+                    //         playbook: 'ansible/deploy.yml',
+                    //         inventory: 'ansible/inventory'
+                    //     )
+                    // }
+
+                    sh 'kubectl apply -f ../k8s/model-pv.yaml'
                 }
             }
         }
