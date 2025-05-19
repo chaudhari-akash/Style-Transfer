@@ -172,20 +172,19 @@ pipeline {
         stage('Run Ansible Playbook') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'kubeconfig-secret', variable: 'KUBECONFIG_B64')]) {
-                        sh '''
-                          echo "$KUBECONFIG_B64" | base64 -d > $KUBECONFIG
-                          chmod 600 $KUBECONFIG
-                        '''
-                        withEnv(["ANSIBLE_HOST_KEY_CHECKING=False"]) {
-                            ansiblePlaybook(
-                                playbook: 'deploy.yml',
-                                inventory: 'inventory'
-                            )
-                        }
-                        sh 'ls'
-                        sh 'pwd'
-                    }
+                    withCredentials([file(credentialsId: 'kubeconfig-secret', variable: 'KUBECONFIG_FILE')]) {
+    sh '''
+      cp "$KUBECONFIG_FILE" /tmp/kubeconfig
+      chmod 600 /tmp/kubeconfig
+    '''
+    withEnv(["KUBECONFIG=/tmp/kubeconfig"]) {
+        ansiblePlaybook(
+            playbook: 'deploy.yml',
+            inventory: 'inventory'
+        )
+    }
+}
+
                 }
             }
         }
