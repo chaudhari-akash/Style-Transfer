@@ -4,10 +4,6 @@
   gather_facts: false
   tasks:
 
-    - name: Start Minikube with Docker driver
-      shell: minikube start --driver=docker
-      ignore_errors: true
-
     - name: Apply model-pv
       shell: kubectl apply -f ./k8s/model-pv.yaml
 
