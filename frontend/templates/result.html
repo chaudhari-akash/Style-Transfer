@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Result</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; text-align: center; }
+        .image-container {
+            max-width: 100%;
+            max-height: 80vh;
+            overflow: auto;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .image-container img {
+             max-width: none;
+             display: block;
+             margin: 0;
+             padding: 0;
+             border: none;
+        }
+
+        #result-image-direct {
+             max-width: 100%;
+             height: auto;
+             margin-top: 20px;
+             border: 1px solid #ccc;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Processing Result</h1>
+
+    <p>{{ message }}</p> {# Display the message #}
+
+    {% if processed_image_url %}
+        {# Display the image using the URL from the backend #}
+        {# Choose ONE way to display (with or without container) #}
+
+        {# Option 1: Display directly, scaled to max-width #}
+        <img id="result-image-direct" src="{{ processed_image_url }}" alt="Processed Image">
+
+        {# Option 2: Display within a scrollable container #}
+        {#
+        <div class="image-container">
+            <img src="{{ processed_image_url }}" alt="Processed Image (Scrollable)">
+        </div>
+        #}
+
+    {% else %}
+        <p>No processed image URL found.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('index') }}">Upload More Images</a></p> {# Link back home #}
+
+</body>
+</html>

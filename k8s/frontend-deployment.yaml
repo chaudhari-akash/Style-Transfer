@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend 
+  template:
+    metadata:
+      labels:
+        app: frontend 
+    spec:
+      containers:
+      - name: frontend-container
+        image: chaudhariakash/app-frontend:latest
+        ports:
+        - containerPort: 3000
+        env:
+          - name: BACKEND_URL
+            valueFrom:
+              configMapKeyRef:
+                name: frontend-config
+                key: BACKEND_URL
+
+          - name: CLOUDINARY_CLOUD_NAME
+            valueFrom:
+              secretKeyRef:
+                name: cloudinary-secrets 
+                key: CLOUDINARY_CLOUD_NAME
+          - name: CLOUDINARY_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: cloudinary-secrets
+                key: CLOUDINARY_API_KEY
+          - name: CLOUDINARY_API_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: cloudinary-secrets
+                key: CLOUDINARY_API_SECRET

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processing Frontend</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        form { margin-bottom: 30px; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        input[type="file"] { margin-bottom: 10px; }
+        button[type="submit"] { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button[type="submit"]:hover { background-color: #0056b3; }
+        .flash { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .flash.error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .flash.success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+    </style>
+</head>
+<body>
+    <h1>Upload Images for Processing</h1>
+
+    {# Display flashed messages #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="flash {{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    {# Form posting to the Flask /upload route #}
+    <form action="{{ url_for('upload_images') }}" method="post" enctype="multipart/form-data">
+        <label for="image1">Image 1:</label>
+        <input type="file" name="image1" id="image1" accept="image/*" required><br>
+
+        <label for="image2">Image 2:</label>
+        <input type="file" name="image2" id="image2" accept="image/*" required><br>
+
+        <button type="submit">Process Images</button>
+    </form>
+
+</body>
+</html>

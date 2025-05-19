@@ -1,0 +1,11 @@
+# Ignore all folders with specific names (anywhere in the repository)
+**/node_modules/
+**/venv/
+**/__pycache__/
+**/build/
+**/dist/
+
+# Ignore by pattern
+**/*.log
+**/logs/
+**/.env
