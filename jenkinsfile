@@ -169,23 +169,10 @@ pipeline {
             }
         }
 
-        stage('Run Ansible Playbook') {
+stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    withCredentials([file(credentialsId: 'kubeconfig-secret', variable: 'KUBECONFIG_FILE')]) {
-    sh '''
-      cp "$KUBECONFIG_FILE" /tmp/kubeconfig
-      chmod 600 /tmp/kubeconfig
-    '''
-    withEnv(["KUBECONFIG=/tmp/kubeconfig"]) {
-        ansiblePlaybook(
-            playbook: 'deploy.yml',
-            inventory: 'inventory'
-        )
-    }
-}
-
-                }
+                // Run kubectl directly
+                sh 'kubectl apply -f k8s/model-pv.yaml'
             }
         }
     }
