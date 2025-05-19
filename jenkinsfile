@@ -172,7 +172,7 @@ pipeline {
 stage('Deploy to Kubernetes') {
             steps {
                 // Run kubectl directly
-                sh 'kubectl apply -f k8s/model-pv.yaml'
+                sh 'kubectl apply -f model-pv.yaml'
             }
         }
     }
