@@ -21,10 +21,10 @@ pipeline {
             steps {
                 sh '''
                     echo "Current User: $(whoami)"
-                    echo "Checking kubeconfig..."
-                    export KUBECONFIG=/home/ubuntu/.kube/config
-                    kubectl config use-context minikube
-                    kubectl config current-context
+                    // echo "Checking kubeconfig..."
+                    // export KUBECONFIG=/home/ubuntu/.kube/config
+                    // kubectl config use-context minikube
+                    // kubectl config current-context
                 '''
             }
         }
