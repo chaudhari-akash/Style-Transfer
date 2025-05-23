@@ -35,48 +35,48 @@ pipeline {
         //     }
         // }
         stage('Build Backend Image') {
-            steps {
-                // script {
-                //     docker.build("${DOCKER_BACKEND_NAME}", './backend')
-                // }
-            }
+            // steps {
+            //     script {
+            //         docker.build("${DOCKER_BACKEND_NAME}", './backend')
+            //     }
+            // }
         }
         stage('Build ModelImporter Image') {
-            steps {
+            // steps {
                 // script {
                 //     docker.build("${DOCKER_MODELIMPORTER_NAME}", './mlflow-server')
                 // }
-            }
+            // }
         }
         stage('Push Frontend Image') {
-            steps {
+            // steps {
                 // script {
                 //     docker.withRegistry('', 'DockerHubCred') {
                 //         sh 'docker tag ${DOCKER_FRONTEND_NAME}:latest chaudhariakash/${DOCKER_FRONTEND_NAME}:latest'
                 //         sh 'docker push chaudhariakash/${DOCKER_FRONTEND_NAME}:latest'
                 //     }
                 // }
-            }
+            // }
         }
         stage('Push Backend Image') {
-            steps {
+            // steps {
                 // script {
                 //     docker.withRegistry('', 'DockerHubCred') {
                 //         sh 'docker tag ${DOCKER_BACKEND_NAME}:latest chaudhariakash/${DOCKER_BACKEND_NAME}:latest'
                 //         sh 'docker push chaudhariakash/${DOCKER_BACKEND_NAME}:latest'
                 //     }
                 // }
-            }
+            // }
         }
         stage('Push ModelImporter Image') {
-            steps {
+            // steps {
                 // script {
                 //     docker.withRegistry('', 'DockerHubCred') {
                 //         sh 'docker tag ${DOCKER_MODELIMPORTER_NAME}:latest chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
                 //         sh 'docker push chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
                 //     }
                 // }
-            }
+            // }
         }
         stage('Deploy to Kubernetes') {
             steps {
