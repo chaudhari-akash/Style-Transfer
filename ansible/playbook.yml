@@ -177,6 +177,7 @@
 - name: Deploy Kubernetes Resources
   hosts: localhost
   gather_facts: no
+  become: true
   
   pre_tasks:
     - name: Check if minikube is running
