@@ -76,6 +76,7 @@ pipeline {
         }
         stage('Push ModelImporter Image') {
             steps {
+                sh '''kubectl apply -f ./k8s/mlflow/02-mlflow-db-pv.yaml'''
                 // script {
                 //     docker.withRegistry('', 'DockerHubCred') {
                 //         sh 'docker tag ${DOCKER_MODELIMPORTER_NAME}:latest chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
