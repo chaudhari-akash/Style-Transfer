@@ -1,18 +1,18 @@
 ---
 - name: Apply cloudinary-secrets
-  shell: kubectl apply -f ../k8s/backend/01-cloudinary-secrets.yaml
+  shell: kubectl apply -f ../k8s/backend/01-cloudinary-secrets.yaml --validate=false
 
 - name: Apply configmap
-  shell: kubectl apply -f ../k8s/backend/02-configmap.yaml
+  shell: kubectl apply -f ../k8s/backend/02-configmap.yaml --validate=false
 
 - name: Apply backend-service
-  shell: kubectl apply -f ../k8s/backend/03-backend-service.yaml
+  shell: kubectl apply -f ../k8s/backend/03-backend-service.yaml --validate=false
 
 - name: Apply backend-deployment
-  shell: kubectl apply -f ../k8s/backend/04-backend-deployment.yaml
+  shell: kubectl apply -f ../k8s/backend/04-backend-deployment.yaml --validate=false
 
 - name: Apply backend-hpa
-  shell: kubectl apply -f ../k8s/backend/05-backend-hpa.yaml
+  shell: kubectl apply -f ../k8s/backend/05-backend-hpa.yaml --validate=false
 
 - name: Apply backend-metrics
-  shell: kubectl apply -f ../k8s/backend/06-backend-metrics.yaml
+  shell: kubectl apply -f ../k8s/backend/06-backend-metrics.yaml --validate=false
