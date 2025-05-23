@@ -1,6 +1,6 @@
 ---
 - name: Apply frontend-service
-  shell: kubectl apply -f ../k8s/frontend/01-frontend-service.yaml --validate=false
+  shell: kubectl apply -f ../k8s/frontend/01-frontend-service.yaml
 
 - name: Apply frontend-deployment
-  shell: kubectl apply -f ../k8s/frontend/02-frontend-deployment.yaml --validate=false
+  shell: kubectl apply -f ../k8s/frontend/02-frontend-deployment.yaml

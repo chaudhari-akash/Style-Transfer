@@ -3,22 +3,22 @@
   shell: kubectl apply -f ../k8s/mlflow/01-mlflow-artifacts-pv.yaml
 
 - name: Apply mlflow-db-pv
-  shell: kubectl apply -f ./k8s/mlflow/02-mlflow-db-pv.yaml --validate=false
+  shell: kubectl apply -f ../k8s/mlflow/02-mlflow-db-pv.yaml
  
 - name: Apply mlflow-artifacts-pvc
-  shell: kubectl apply -f ./k8s/mlflow/03-mlflow-artifacts-pvc.yaml --validate=false
+  shell: kubectl apply -f ../k8s/mlflow/03-mlflow-artifacts-pvc.yaml 
 
 - name: Apply mlflow-db-pvc
-  shell: kubectl apply -f ./k8s/mlflow/04-mlflow-db-pvc.yaml --validate=false
+  shell: kubectl apply -f ../k8s/mlflow/04-mlflow-db-pvc.yaml 
 
 - name: Apply model-import-job
-  shell: kubectl apply -f ./k8s/mlflow/05-model-import-job.yaml --validate=false
+  shell: kubectl apply -f ../k8s/mlflow/05-model-import-job.yaml 
 
 - name: Apply mlflow-service
-  shell: kubectl apply -f ./k8s/mlflow/06-mlflow-service.yaml --validate=false
+  shell: kubectl apply -f ../k8s/mlflow/06-mlflow-service.yaml 
  
 - name: Apply mlflow-deployment
-  shell: kubectl apply -f ./k8s/mlflow/07-mlflow-deployment.yaml --validate=false
+  shell: kubectl apply -f ../k8s/mlflow/07-mlflow-deployment.yaml 
 
 
 

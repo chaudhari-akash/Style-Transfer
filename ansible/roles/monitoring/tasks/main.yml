@@ -1,24 +1,24 @@
 ---
 - name: Apply namespace
-  shell: kubectl apply -f ../k8s/monitoring/01-namespace.yaml --validate=false
+  shell: kubectl apply -f ../k8s/monitoring/01-namespace.yaml
 
 - name: Apply prometheus-rbac
-  shell: kubectl apply -f ../k8s/monitoring/02-prometheus-rbac.yaml --validate=false
+  shell: kubectl apply -f ../k8s/monitoring/02-prometheus-rbac.yaml 
 
 - name: Apply prometheus-config
-  shell: kubectl apply -f ../k8s/monitoring/03-prometheus-config.yaml --validate=false
+  shell: kubectl apply -f ../k8s/monitoring/03-prometheus-config.yaml 
 
 - name: Apply prometheus-service
-  shell: kubectl apply -f ../k8s/monitoring/04-prometheus-service.yaml --validate=false
+  shell: kubectl apply -f ../k8s/monitoring/04-prometheus-service.yaml 
 
 - name: Apply prometheus-deployment
-  shell: kubectl apply -f ../k8s/monitoring/05-prometheus-deployment.yaml --validate=false
+  shell: kubectl apply -f ../k8s/monitoring/05-prometheus-deployment.yaml 
 
 - name: Apply grafana-config
-  shell: kubectl apply -f ../k8s/monitoring/06-grafana-config.yaml --validate=false
+  shell: kubectl apply -f ../k8s/monitoring/06-grafana-config.yaml 
 
 - name: Apply grafana-service
-  shell: kubectl apply -f ../k8s/monitoring/07-grafana-service.yaml --validate=false
+  shell: kubectl apply -f ../k8s/monitoring/07-grafana-service.yaml 
 
 - name: Apply grafana-deployment
-  shell: kubectl apply -f ../k8s/monitoring/08-grafana-deployment.yaml --validate=false
+  shell: kubectl apply -f ../k8s/monitoring/08-grafana-deployment.yaml
