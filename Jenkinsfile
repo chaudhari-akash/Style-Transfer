@@ -9,6 +9,7 @@ pipeline {
         DOCKER_MODELIMPORTER_NAME = 'model-importer'
         GITHUB_REPO_URL = 'https://github.com/chaudhari-akash/Style-Transfer.git'
     }
+    
     stages {
         stage('Git Clone') {
             steps {
