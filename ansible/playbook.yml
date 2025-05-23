@@ -185,25 +185,6 @@
       failed_when: false
       changed_when: false
       
-    - name: Start minikube if not running
-      command: minikube start
-      when: minikube_status.rc != 0
-      
-    - name: Regenerate minikube certificates
-      command: minikube update-context --force
-      
-    - name: Wait for minikube to be ready
-      pause:
-        seconds: 10
-        
-    - name: Test connection (skip certificate verification)
-      command: kubectl get nodes --insecure-skip-tls-verify
-      register: nodes_test
-      
-    - name: Show nodes
-      debug:
-        msg: "Nodes: {{ nodes_test.stdout_lines }}"
-
   roles:
     - mlflow
     - backend
