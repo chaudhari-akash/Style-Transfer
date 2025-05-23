@@ -71,7 +71,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 ansiblePlaybook(
-                    playbook: './ansible/deploy.yml',
+                    playbook: './ansible/playbook.yml',
                     inventory: './ansible/inventory.ini',
                     colorized: true
                 )
