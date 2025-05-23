@@ -14,14 +14,6 @@
       when: minikube_status.rc != 0
       register: minikube_start
 
-    - name: Wait for minikube to be ready
-      command: minikube status
-      register: minikube_ready
-      until: minikube_ready.rc == 0
-      retries: 30
-      delay: 10
-      when: minikube_start is changed
-
   roles:
     - mlflow
     - backend
