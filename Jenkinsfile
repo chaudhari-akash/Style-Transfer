@@ -17,57 +17,67 @@ pipeline {
                 }
             }
         }
-        stage('Build Frontend Image') {
+        stage('Check Kubeconfig Access') {
             steps {
-                script {
-                    docker.build("${DOCKER_FRONTEND_NAME}", './frontend')
-                }
+                sh '''
+                    echo "Current User: $(whoami)"
+                    echo "Checking kubeconfig..."
+                    export KUBECONFIG=/home/ubuntu/.kube/config
+                    kubectl config current-context
+                '''
             }
         }
-        stage('Build Backend Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_BACKEND_NAME}", './backend')
-                }
-            }
-        }
-        stage('Build ModelImporter Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_MODELIMPORTER_NAME}", './mlflow-server')
-                }
-            }
-        }
-        stage('Push Frontend Image') {
-            steps {
-                script {
-                    docker.withRegistry('', 'DockerHubCred') {
-                        sh 'docker tag ${DOCKER_FRONTEND_NAME}:latest chaudhariakash/${DOCKER_FRONTEND_NAME}:latest'
-                        sh 'docker push chaudhariakash/${DOCKER_FRONTEND_NAME}:latest'
-                    }
-                }
-            }
-        }
-        stage('Push Backend Image') {
-            steps {
-                script {
-                    docker.withRegistry('', 'DockerHubCred') {
-                        sh 'docker tag ${DOCKER_BACKEND_NAME}:latest chaudhariakash/${DOCKER_BACKEND_NAME}:latest'
-                        sh 'docker push chaudhariakash/${DOCKER_BACKEND_NAME}:latest'
-                    }
-                }
-            }
-        }
-        stage('Push ModelImporter Image') {
-            steps {
-                script {
-                    docker.withRegistry('', 'DockerHubCred') {
-                        sh 'docker tag ${DOCKER_MODELIMPORTER_NAME}:latest chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
-                        sh 'docker push chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
-                    }
-                }
-            }
-        }
+        // stage('Build Frontend Image') {
+        //     steps {
+        //         script {
+        //             docker.build("${DOCKER_FRONTEND_NAME}", './frontend')
+        //         }
+        //     }
+        // }
+        // stage('Build Backend Image') {
+        //     steps {
+        //         script {
+        //             docker.build("${DOCKER_BACKEND_NAME}", './backend')
+        //         }
+        //     }
+        // }
+        // stage('Build ModelImporter Image') {
+        //     steps {
+        //         script {
+        //             docker.build("${DOCKER_MODELIMPORTER_NAME}", './mlflow-server')
+        //         }
+        //     }
+        // }
+        // stage('Push Frontend Image') {
+        //     steps {
+        //         script {
+        //             docker.withRegistry('', 'DockerHubCred') {
+        //                 sh 'docker tag ${DOCKER_FRONTEND_NAME}:latest chaudhariakash/${DOCKER_FRONTEND_NAME}:latest'
+        //                 sh 'docker push chaudhariakash/${DOCKER_FRONTEND_NAME}:latest'
+        //             }
+        //         }
+        //     }
+        // }
+        // stage('Push Backend Image') {
+        //     steps {
+        //         script {
+        //             docker.withRegistry('', 'DockerHubCred') {
+        //                 sh 'docker tag ${DOCKER_BACKEND_NAME}:latest chaudhariakash/${DOCKER_BACKEND_NAME}:latest'
+        //                 sh 'docker push chaudhariakash/${DOCKER_BACKEND_NAME}:latest'
+        //             }
+        //         }
+        //     }
+        // }
+        // stage('Push ModelImporter Image') {
+        //     steps {
+        //         script {
+        //             docker.withRegistry('', 'DockerHubCred') {
+        //                 sh 'docker tag ${DOCKER_MODELIMPORTER_NAME}:latest chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
+        //                 sh 'docker push chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
+        //             }
+        //         }
+        //     }
+        // }
         stage('Deploy to Kubernetes') {
             steps {
                 ansiblePlaybook(
