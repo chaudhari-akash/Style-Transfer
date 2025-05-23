@@ -34,7 +34,7 @@ pipeline {
         stage('Build ModelImporter Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_MODELIMPORTER_NAME}", './mlflowserver')
+                    docker.build("${DOCKER_MODELIMPORTER_NAME}", './mlflow-server')
                 }
             }
         }
