@@ -173,29 +173,20 @@
 
 
 
-# ---
-# - name: Deploy Kubernetes Resources
-#   hosts: localhost
-#   gather_facts: false
-  
-#   pre_tasks:
-#     - name: Check if minikube is running
-#       command: minikube status
-#       register: minikube_status
-#       failed_when: false
-#       changed_when: false
-      
-#   roles:
-#     - mlflow
-#     - backend
-#     - frontend
-#     - monitoring
-
 ---
-- name: Print Hello message
+- name: Deploy Kubernetes Resources
   hosts: localhost
   gather_facts: no
-  tasks:
-    - name: Print Hello
-      debug:
-        msg: "Hello"
+  
+  pre_tasks:
+    - name: Check if minikube is running
+      command: minikube status
+      register: minikube_status
+      failed_when: false
+      changed_when: false
+      
+  roles:
+    - mlflow
+    - backend
+    - frontend
+    - monitoring
