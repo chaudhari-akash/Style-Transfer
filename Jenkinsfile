@@ -76,7 +76,8 @@ pipeline {
         }
         stage('Push ModelImporter Image') {
             steps {
-                sh '''kubectl apply -f ./k8s/mlflow/02-mlflow-db-pv.yaml'''
+                withCredentials([file(credentialsId: 'MINIKUBE_KUBECONFIG', variable: 'KUBECONFIG')]){
+                    sh '''kubectl apply -f ./k8s/mlflow/02-mlflow-db-pv.yaml'''
                 // script {
                 //     docker.withRegistry('', 'DockerHubCred') {
                 //         sh 'docker tag ${DOCKER_MODELIMPORTER_NAME}:latest chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
@@ -84,15 +85,21 @@ pipeline {
                 //     }
                 // }
                 echo "Hello"
+                }
+                
             }
         }
         stage('Deploy to Kubernetes') {
             steps {
-                ansiblePlaybook(
+                withCredentials([file(credentialsId: 'MINIKUBE_KUBECONFIG', variable: 'KUBECONFIG')]){
+                    ansiblePlaybook(
                     playbook: './ansible/playbook.yml',
                     inventory: './ansible/inventory.ini',
                     colorized: true
                 )
+                echo "Hello"
+                }
+                
             }
         }
     }
