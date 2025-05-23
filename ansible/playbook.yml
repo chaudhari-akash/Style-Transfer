@@ -184,6 +184,22 @@
       register: minikube_status
       failed_when: false
       changed_when: false
+    - name: Show current working directory
+      command: pwd
+      register: pwd_output
+
+    - debug:
+      var: pwd_output.stdout
+
+    - name: List k8s/mlflow directory
+      command: ls -l ./k8s/mlflow/
+      register: ls_output
+      ignore_errors: yes
+
+    - debug:
+      var: ls_output.stdout_lines
+
+
       
   roles:
     - mlflow
