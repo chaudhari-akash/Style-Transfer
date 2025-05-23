@@ -195,7 +195,7 @@
         var: pwd_output.stdout
 
     - name: List k8s/mlflow directory
-      command: ls -l ./k8s/mlflow/
+      command: ls -l 
       register: ls_output
       ignore_errors: yes
 
