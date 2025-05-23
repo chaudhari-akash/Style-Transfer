@@ -3,10 +3,22 @@
   hosts: localhost
   gather_facts: false
   
-  pre_tasks:
-    - name: Set kubectl context to minikube
-      command: kubectl config use-context minikube
+  # pre_tasks:
+  #   - name: Set kubectl context to minikube
+  #     command: kubectl config use-context minikube
+
+  #   - name: Check if minikube is running
+  #     command: minikube status
+  #     register: minikube_status
+  #     failed_when: false
+  #     changed_when: false
       
+  #   - name: Start minikube if not running
+  #     command: minikube start
+  #     when: minikube_status.rc != 0
+
+
+  pre_tasks:
     - name: Check if minikube is running
       command: minikube status
       register: minikube_status
@@ -16,6 +28,23 @@
     - name: Start minikube if not running
       command: minikube start
       when: minikube_status.rc != 0
+      
+    - name: List available kubectl contexts
+      command: kubectl config get-contexts
+      register: kubectl_contexts
+      
+    - name: Show available contexts
+      debug:
+        var: kubectl_contexts.stdout_lines
+        
+    - name: Get current kubectl context
+      command: kubectl config current-context
+      register: current_context
+      failed_when: false
+      
+    - name: Show current context
+      debug:
+        msg: "Current context: {{ current_context.stdout if current_context.rc == 0 else 'None set' }}"
 
   roles:
     - mlflow
