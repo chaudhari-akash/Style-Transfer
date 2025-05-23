@@ -6,7 +6,6 @@ import cloudinary.uploader # type: ignore
 from fastapi.middleware.cors import CORSMiddleware # type: ignore
 import io
 from PIL import Image
-from model import Model, VGGEncoder, RC
 import os
 import torch # type: ignore
 from torchvision.utils import save_image  # type: ignore
@@ -17,9 +16,15 @@ from fastapi.exceptions import RequestValidationError # type: ignore
 from fastapi.responses import JSONResponse # type: ignore
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY # type: ignore
 import logging 
+from model_loader import ModelLoader
+import time
+from prometheus_client import Counter, Histogram, start_http_server
 
+start_http_server(4000)
 
-
+predictions_total = Counter('mlflow_predictions_total', 'Total ML predictions')
+prediction_time = Histogram('mlflow_prediction_seconds', 'Time spent on predictions')
+model_load_time = Histogram('mlflow_model_load_seconds', 'Time spent loading models')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,76 +47,11 @@ else:
     )
     logger.info("✅ Cloudinary configured successfully.")
 
+model = ModelLoader()
 
-# --- Load Model ---
-
-model = Model() 
-# model_state_dict_path = 'models/model_state.pth'
-model_state_dict_path = os.environ.get("MODEL_PATH")
-
-try:
-    if not os.path.exists(model_state_dict_path):
-         raise FileNotFoundError(f"Model state dictionary not found at {model_state_dict_path}")
-    model.load_state_dict(torch.load(model_state_dict_path, map_location=lambda storage, loc: storage, weights_only=True))
-    logger.info(f"✅ Model state dictionary loaded successfully from {model_state_dict_path}.")
-except FileNotFoundError as e:
-    logger.error(f"❌ Failed to load Model State Dictionary: {e}")
-except Exception as e:
-    logger.error(f"❌ Failed to load Model State Dictionary: {e}")
-    
-    
-
-
-
-# --- Setup device ---
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model.to(device)
 logger.info(f"Using device: {device}")
-model.eval()
-
-# --- Image Preprocessing & Conversion Functions ---
-
-def pillow_to_tensor(pil_image: Image.Image, device: torch.device) -> torch.Tensor:
-    if pil_image.mode != 'RGB':
-        logger.warning(f"Image mode was {pil_image.mode}, converting to RGB.")
-        pil_image = pil_image.convert('RGB')
-
-    img_array = np.array(pil_image, dtype=np.float32)
-    img_array = img_array / 255.0 
-    img_array = img_array.transpose((2, 0, 1))
-
-    mean = np.array([0.485, 0.456, 0.406], dtype=np.float32).reshape(-1, 1, 1)
-    std = np.array([0.229, 0.224, 0.225], dtype=np.float32).reshape(-1, 1, 1)
-    img_array = (img_array - mean) / std
-
-    tensor = torch.from_numpy(img_array).unsqueeze(0)
-    return tensor.to(device)
-
-def denorm(tensor: torch.Tensor, device: torch.device) -> torch.Tensor:
-    std = torch.Tensor([0.229, 0.224, 0.225]).reshape(-1, 1, 1).to(device)
-    mean = torch.Tensor([0.485, 0.456, 0.406]).reshape(-1, 1, 1).to(device)
-    res = torch.clamp(tensor * std + mean, 0, 1)
-    return res
-
-def tensor_to_pil(tensor: torch.Tensor) -> Image.Image:
-    tensor = tensor.squeeze(0).cpu()
-    img = to_pil_image(tensor)
-    return img
-
-
-# --- Generate Styled image (using tensors) ---
-
-def generate_styled_image_from_tensors(
-    content_tensor: torch.Tensor,
-    style_tensor: torch.Tensor,
-    model: Model,
-    alpha: float = 1.0
-) -> torch.Tensor:
-    with torch.inference_mode():
-        stylized_tensor = model.generate(content_tensor, style_tensor, alpha)
-    return stylized_tensor
-
 
 # --- FastAPI App Setup ---
 
@@ -139,6 +79,11 @@ class ImageUrls(BaseModel):
     alpha: float = 1.0
 
 
+@app.on_event("startup")
+async def startup_event():
+    with model_load_time.time():
+        model.load_model()
+
 # --- Exception Handler for Pydantic Validation Errors ---
 
 @app.exception_handler(RequestValidationError)
@@ -156,7 +101,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 # --- Health Check Endpoint ---
 
 @app.get("/health")
-
 async def health_check():
     status = {"status": "ok", "device": str(device)}
     if not all([cloud_name, api_key, api_secret]):
@@ -177,17 +121,16 @@ async def health_check():
 
 
 # --- Main Endpoint to Process Images ---
-
 @app.post("/process-images-from-urls/")
-
 async def process_images_from_urls(urls: ImageUrls):
+    predictions_total.inc()
     image1_url = urls.image1_url
     image2_url = urls.image2_url
     alpha = urls.alpha
 
     logger.info(f"Received request to process images. Content: {image1_url}, Style: {image2_url}, Alpha: {alpha}")
 
-    # --- 1. Download Images from URLs ---
+    # ---  Download Images from URLs ---
     try:
         logger.info(f"Downloading content image from {image1_url}...")
         response1 = requests.get(image1_url, timeout=20)
@@ -209,54 +152,16 @@ async def process_images_from_urls(urls: ImageUrls):
          raise HTTPException(status_code=500, detail=f"An unexpected error occurred during image download: {e}")
 
 
-    # --- 2. Open Images using Pillow and Convert to RGB ---
     try:
-        img1_pil = Image.open(io.BytesIO(image1_content)).convert("RGB")
-        img2_pil = Image.open(io.BytesIO(image2_content)).convert("RGB")
-        logger.info("Images opened and converted to RGB using Pillow.")
-
+        start_time = time.time()
+        with prediction_time.time():
+            processed_img_pil = model.apply_style_transfer(image1_content, image2_content)
+        process_time = time.time() - start_time
+        logger.info(f"Style transfer completed successfully in {process_time:.2f} seconds")
     except Exception as e:
-        logger.error(f"Failed to open or convert image files with Pillow: {e}")
-        raise HTTPException(status_code=400, detail=f"Failed to open or process image files. Ensure they are valid image formats. Error: {e}")
+        logger.error(f"Style transfer failed: {str(e)}")
 
-
-    # --- 3. Convert Pillow Images to Normalized Tensors ---
-    try:
-        logger.info("Converting Pillow images to PyTorch tensors...")
-        content_tensor = pillow_to_tensor(img1_pil, device)
-        style_tensor = pillow_to_tensor(img2_pil, device)
-        logger.info("Images converted to tensors successfully.")
-    except Exception as e:
-        logger.error(f"Failed to convert images to tensors: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to prepare images for the model. Error: {e}")
-
-
-    # --- 4. Generate Styled image Tensor ---
-    try:
-        logger.info("Generating styled image tensor using the model...")
-        styled_tensor_normalized = generate_styled_image_from_tensors(
-            content_tensor, style_tensor, model, alpha=alpha
-        )
-        logger.info("Styled tensor generated successfully.")
-        styled_tensor_denorm = denorm(styled_tensor_normalized, device)
-        logger.info("Styled tensor denormalized.")
-
-    except Exception as e:
-        logger.error(f"Failed during style transfer model execution: {e}")
-        raise HTTPException(status_code=500, detail=f"An error occurred during the style transfer process. Error: {e}")
-
-    # --- 5. Convert Styled Tensor back to Pillow Image ---
-    try:
-        logger.info("Converting denormalized tensor back to Pillow image...")
-        processed_img_pil = tensor_to_pil(styled_tensor_denorm)
-        logger.info("Tensor converted back to Pillow image.")
-
-    except Exception as e:
-        logger.error(f"Failed to convert tensor back to Pillow image: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to finalize the processed image. Error: {e}")
-
-
-    # --- 6. Save Processed Pillow Image to BytesIO Buffer ---
+    # ---  Save Processed Pillow Image to BytesIO Buffer ---
     try:
         logger.info("Saving Pillow image to BytesIO buffer...")
         buf = io.BytesIO()
@@ -269,7 +174,7 @@ async def process_images_from_urls(urls: ImageUrls):
         raise HTTPException(status_code=500, detail=f"Failed to prepare the final image for upload. Error: {e}")
 
 
-    # --- 7. Upload Processed Image from BytesIO to Cloudinary ---
+    # ---  Upload Processed Image from BytesIO to Cloudinary ---
     if not all([cloud_name, api_key, api_secret]):
          logger.error("Cloudinary credentials not configured. Cannot upload.")
          raise HTTPException(status_code=500, detail="Cloudinary is not configured. Cannot upload result.")
@@ -296,7 +201,7 @@ async def process_images_from_urls(urls: ImageUrls):
         raise HTTPException(status_code=500, detail=f"Failed to upload the result to Cloudinary. Error: {e}")
 
 
-    # --- 8. Return Processed Image URL to Frontend ---
+    # ---  Return Processed Image URL to Frontend ---
     logger.info("Successfully processed request. Returning result URL.")
     return {
         "processed_image_url": processed_image_url,
@@ -305,6 +210,5 @@ async def process_images_from_urls(urls: ImageUrls):
 
 # --- Root Endpoint ---
 @app.get("/")
-
 async def read_root():
     return {"message": "Style Transfer API is running. Use /process-images-from-urls/ to process images."}

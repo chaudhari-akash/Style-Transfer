@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nst-model-import
+spec:
+  ttlSecondsAfterFinished: 10
+  template:
+    spec:
+      containers:
+      - name: model-importer
+        image: chaudhariakash/model-importer
+        args:
+        - "--repo_id=chaudhariakash/style"
+        - "--model_name=nst"
+        - "--version=1"
+        - "--description=Custom Neural Style Transfer model imported from Hugging Face"
+        env:
+        - name: MLFLOW_TRACKING_URI
+          value: "http://mlflow-tracking-server:7000"
+        volumeMounts:
+        - name: mlflow-artifacts
+          mountPath: /mlflow/artifacts
+      volumes:
+      - name: mlflow-artifacts
+        persistentVolumeClaim:
+          claimName: mlflow-artifacts-pvc
+      restartPolicy: Never
+  backoffLimit: 2

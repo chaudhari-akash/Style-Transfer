@@ -1,0 +1,21 @@
+---
+- name: Deploy Kubernetes Resources
+  hosts: localhost
+  gather_facts: false
+  
+  pre_tasks:
+    - name: Check if minikube is running
+      command: minikube status
+      register: minikube_status
+      failed_when: false
+      changed_when: false
+      
+    - name: Start minikube if not running
+      command: minikube start
+      when: minikube_status.rc != 0
+
+  roles:
+    - mlflow
+    - backend
+    - frontend
+    - monitoring

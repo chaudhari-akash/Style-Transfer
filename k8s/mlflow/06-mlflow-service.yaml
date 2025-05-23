@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-tracking-server
+spec:
+  selector:
+    app: mlflow
+  ports:
+  - port: 7000
+    targetPort: 7000
+  type: ClusterIP

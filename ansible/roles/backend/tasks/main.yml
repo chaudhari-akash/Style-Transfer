@@ -1,0 +1,18 @@
+---
+- name: Apply cloudinary-secrets
+  shell: kubectl apply -f ../k8s/backend/01-cloudinary-secrets.yaml
+
+- name: Apply configmap
+  shell: kubectl apply -f ../k8s/backend/02-configmap.yaml
+
+- name: Apply backend-service
+  shell: kubectl apply -f ../k8s/backend/03-backend-service.yaml
+
+- name: Apply backend-deployment
+  shell: kubectl apply -f ../k8s/backend/04-backend-deployment.yaml
+
+- name: Apply backend-hpa
+  shell: kubectl apply -f ../k8s/backend/05-backend-hpa.yaml
+
+- name: Apply backend-metrics
+  shell: kubectl apply -f ../k8s/backend/06-backend-metrics.yaml
