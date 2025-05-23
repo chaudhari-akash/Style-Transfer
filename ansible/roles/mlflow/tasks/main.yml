@@ -1,6 +1,6 @@
 ---
 - name: Apply mlflow-artifacts-pv
-  shell: kubectl apply -f ../k8s/mlflow/01-mlflow-artifacts-pv.yaml --validate=false
+  shell: minikube kubectl apply -f ../k8s/mlflow/01-mlflow-artifacts-pv.yaml --validate=false
 
 - name: Apply mlflow-db-pv
   shell: kubectl apply -f ../k8s/mlflow/02-mlflow-db-pv.yaml --validate=false
