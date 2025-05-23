@@ -19,13 +19,14 @@ pipeline {
         }
         stage('Build Frontend Image') {
             steps {
-                sh '''
-                    echo "Current User: $(whoami)"
-                    // echo "Checking kubeconfig..."
-                    // export KUBECONFIG=/home/ubuntu/.kube/config
-                    // kubectl config use-context minikube
-                    // kubectl config current-context
-                '''
+                // sh '''
+                //     echo "Current User: $(whoami)"
+                //     echo "Checking kubeconfig..."
+                //     export KUBECONFIG=/home/ubuntu/.kube/config
+                //     kubectl config use-context minikube
+                //     kubectl config current-context
+                // '''
+                echo "HELOO"
             }
         }
         // stage('Build Frontend Image') {
