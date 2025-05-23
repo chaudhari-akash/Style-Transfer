@@ -2,26 +2,25 @@
 - name: Deploy Kubernetes Resources
   hosts: localhost
   gather_facts: no
-
   pre_tasks:
-    - name: Check if Minikube is running
-      command: minikube status --format='{{.Host}}'
+    - name: Check if minikube is running
+      command: minikube status
       register: minikube_status
       failed_when: false
       changed_when: false
 
-    - name: Start Minikube if not running
+    - name: Start minikube if not running
       command: minikube start
+      when: minikube_status.rc != 0
       register: minikube_start
-      when: minikube_status.stdout != "Running"
 
-    - name: Wait for Minikube to be ready
-      command: minikube status --format='{{.Host}}'
+    - name: Wait for minikube to be ready
+      command: minikube status
       register: minikube_ready
-      until: minikube_ready.stdout == "Running"
+      until: minikube_ready.rc == 0
       retries: 30
       delay: 10
-      when: minikube_start is defined and minikube_start is changed
+      when: minikube_start is changed
 
   roles:
     - mlflow
