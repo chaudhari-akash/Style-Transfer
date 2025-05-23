@@ -4,6 +4,9 @@
   gather_facts: false
   
   pre_tasks:
+    - name: Set kubectl context to minikube
+      command: kubectl config use-context minikube
+      
     - name: Check if minikube is running
       command: minikube status
       register: minikube_status
