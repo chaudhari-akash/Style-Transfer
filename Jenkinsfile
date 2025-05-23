@@ -28,55 +28,60 @@ pipeline {
             }
         }
         // stage('Build Frontend Image') {
-        //     steps {
+            // steps {
         //         script {
         //             docker.build("${DOCKER_FRONTEND_NAME}", './frontend')
         //         }
-        //     }
+            // }
         // }
         stage('Build Backend Image') {
-            // steps {
+            steps {
             //     script {
             //         docker.build("${DOCKER_BACKEND_NAME}", './backend')
             //     }
-            // }
+            echo "Hello"
+            }
         }
         stage('Build ModelImporter Image') {
-            // steps {
+            steps {
                 // script {
                 //     docker.build("${DOCKER_MODELIMPORTER_NAME}", './mlflow-server')
                 // }
-            // }
+                echo "Hello"
+            }
         }
         stage('Push Frontend Image') {
-            // steps {
+            steps {
                 // script {
                 //     docker.withRegistry('', 'DockerHubCred') {
                 //         sh 'docker tag ${DOCKER_FRONTEND_NAME}:latest chaudhariakash/${DOCKER_FRONTEND_NAME}:latest'
                 //         sh 'docker push chaudhariakash/${DOCKER_FRONTEND_NAME}:latest'
                 //     }
                 // }
-            // }
+                echo "Hello"
+            }
         }
         stage('Push Backend Image') {
-            // steps {
+            steps {
                 // script {
                 //     docker.withRegistry('', 'DockerHubCred') {
                 //         sh 'docker tag ${DOCKER_BACKEND_NAME}:latest chaudhariakash/${DOCKER_BACKEND_NAME}:latest'
                 //         sh 'docker push chaudhariakash/${DOCKER_BACKEND_NAME}:latest'
                 //     }
                 // }
-            // }
+                echo "Hello"
+            }
         }
         stage('Push ModelImporter Image') {
-            // steps {
+            steps {
                 // script {
                 //     docker.withRegistry('', 'DockerHubCred') {
                 //         sh 'docker tag ${DOCKER_MODELIMPORTER_NAME}:latest chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
                 //         sh 'docker push chaudhariakash/${DOCKER_MODELIMPORTER_NAME}:latest'
                 //     }
                 // }
-            // }
+                echo "Hello"
+            }
         }
         stage('Deploy to Kubernetes') {
             steps {
