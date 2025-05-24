@@ -1,44 +1,744 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Processing Frontend</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; }
-        form { margin-bottom: 30px; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
-        input[type="file"] { margin-bottom: 10px; }
-        button[type="submit"] { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button[type="submit"]:hover { background-color: #0056b3; }
-        .flash { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .flash.error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-        .flash.success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #5B9FBF 0%, #3A7CA5 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #5B9FBF, #3A7CA5);
+            border-radius: 2px;
+        }
+
+        .flashes {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideIn 0.4s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .flash::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+        }
+
+        .flash.error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .flash.error::before {
+            background-color: #ef4444;
+        }
+
+        .flash.success {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .flash.success::before {
+            background-color: #22c55e;
+        }
+
+        form {
+            margin-top: 30px;
+        }
+
+        .upload-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            flex: 1;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: 2px dashed #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-wrapper:hover {
+            border-color: #5B9FBF;
+            background: #f3f4f6;
+            transform: translateY(-2px);
+        }
+
+        .file-input-wrapper.has-file {
+            border-style: solid;
+            border-color: #5B9FBF;
+            background: #E8F4F8;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            background: linear-gradient(135deg, #5B9FBF, #3A7CA5);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .file-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .file-text {
+            flex: 1;
+        }
+
+        .file-text .placeholder {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .file-text .filename {
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .preview-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        .preview-card.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .preview-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .preview-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .images-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        .image-wrapper {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .image-wrapper:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3A7CA5;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 250px;
+            width: auto;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            object-fit: contain;
+            background: white;
+            padding: 10px;
+        }
+
+        .image-info {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .info-item svg {
+            width: 14px;
+            height: 14px;
+            fill: #999;
+        }
+
+        .preview-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 250px;
+            color: #667eea;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #5B9FBF, #3A7CA5);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(91, 159, 191, 0.3);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        button[type="submit"]:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button[type="submit"]:hover:not(:disabled)::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .error-message {
+            background-color: #fee;
+            color: #c33;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+            animation: slideDown 0.3s ease;
+            border-left: 4px solid #c33;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .file-warning {
+            background-color: #fffbeb;
+            color: #92400e;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .file-warning.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .upload-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .images-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .preview-image {
+                max-height: 200px;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <h1>Upload Images for Processing</h1>
+    <div class="container">
+        <h1>Upload Images for Processing</h1>
 
-    {# Display flashed messages #}
-    {% with messages = get_flashed_messages(with_categories=true) %}
+        {# Display flashed messages #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <ul class="flashes">
+        <ul class="flashes">
             {% for category, message in messages %}
-                <li class="flash {{ category }}">{{ message }}</li>
+            <li class="flash {{ category }}">{{ message }}</li>
             {% endfor %}
-            </ul>
+        </ul>
         {% endif %}
-    {% endwith %}
+        {% endwith %}
 
-    {# Form posting to the Flask /upload route #}
-    <form action="{{ url_for('upload_images') }}" method="post" enctype="multipart/form-data">
-        <label for="image1">Image 1:</label>
-        <input type="file" name="image1" id="image1" accept="image/*" required><br>
+        {# Form posting to the Flask /upload route #}
+        <form action="{{ url_for('upload_images') }}" method="post" enctype="multipart/form-data">
+            <div class="upload-section">
+                <div class="form-group">
+                    <label for="image1">Content Image:</label>
+                    <div class="file-input-wrapper" id="wrapper1">
+                        <input type="file" name="image1" id="image1" accept="image/*" required>
+                        <div class="file-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path
+                                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z" />
+                            </svg>
+                        </div>
+                        <div class="file-text">
+                            <span class="placeholder">Choose content image...</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="error1"></div>
+                    <div class="file-warning" id="warning1"></div>
+                </div>
 
-        <label for="image2">Image 2:</label>
-        <input type="file" name="image2" id="image2" accept="image/*" required><br>
+                <div class="form-group">
+                    <label for="image2">Style Image:</label>
+                    <div class="file-input-wrapper" id="wrapper2">
+                        <input type="file" name="image2" id="image2" accept="image/*" required>
+                        <div class="file-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.19 0 2.34-.21 3.41-.6.3-.11.49-.4.49-.72 0-.43-.35-.78-.78-.78-.17 0-.33.06-.46.11-.98.35-2.05.55-3.16.55-4.84 0-8.78-3.94-8.78-8.78S7.16 3 12 3s8.78 3.94 8.78 8.78c0 .55-.04 1.09-.13 1.61-.09.52-.58.9-1.12.82-.6-.09-1.03-.62-.91-1.22.05-.25.08-.51.08-.77 0-3.13-2.54-5.67-5.67-5.67s-5.67 2.54-5.67 5.67 2.54 5.67 5.67 5.67c1.45 0 2.77-.55 3.77-1.44.6.7 1.48 1.14 2.48 1.14 1.8 0 3.26-1.46 3.26-3.26 0-.24-.03-.48-.07-.71C21.79 5.31 17.31.83 11.49.83 5.12.83.17 5.78.17 12.15s4.95 11.32 11.32 11.32c2.76 0 5.3-.98 7.28-2.61.36-.3.42-.81.12-1.17-.3-.36-.81-.42-1.17-.12-1.67 1.37-3.8 2.2-6.1 2.2z" />
+                            </svg>
+                        </div>
+                        <div class="file-text">
+                            <span class="placeholder">Choose style image...</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="error2"></div>
+                    <div class="file-warning" id="warning2"></div>
+                </div>
+            </div>
 
-        <button type="submit">Process Images</button>
-    </form>
+            <div class="preview-card" id="previewCard">
+                <div class="preview-header">
+                    <h2 class="preview-title">Image Preview</h2>
+                    <p class="preview-subtitle">Review your selected images before processing</p>
+                </div>
 
+                <div class="images-container">
+                    <div class="image-wrapper">
+                        <span class="image-label">Content Image</span>
+                        <div class="preview-loading" id="loading1">
+                            <div class="spinner"></div>
+                        </div>
+                        <img class="preview-image" id="previewImg1" style="display: none;">
+                        <div class="image-info" id="info1"></div>
+                    </div>
+
+                    <div class="image-wrapper">
+                        <span class="image-label">Style Image</span>
+                        <div class="preview-loading" id="loading2">
+                            <div class="spinner"></div>
+                        </div>
+                        <img class="preview-image" id="previewImg2" style="display: none;">
+                        <div class="image-info" id="info2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit">Process Images</button>
+        </form>
+    </div>
+
+    <script>
+        let imageStates = {
+            image1: { loaded: false, data: null },
+            image2: { loaded: false, data: null }
+        };
+
+        const MAX_FILE_SIZE = 10 * 1024 * 1024;
+        const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showError(errorId, message) {
+            const errorElement = document.getElementById(errorId);
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+
+            setTimeout(() => {
+                errorElement.classList.remove('show');
+            }, 5000);
+        }
+
+        function showWarning(warningId, message) {
+            const warningElement = document.getElementById(warningId);
+            warningElement.textContent = message;
+            warningElement.classList.add('show');
+        }
+
+        function clearMessages(errorId, warningId) {
+            document.getElementById(errorId).classList.remove('show');
+            document.getElementById(warningId).classList.remove('show');
+        }
+
+        function validateFile(file) {
+            const errors = [];
+            const warnings = [];
+
+            if (file.size > MAX_FILE_SIZE) {
+                errors.push(`File size (${formatFileSize(file.size)}) exceeds maximum allowed size of ${formatFileSize(MAX_FILE_SIZE)}`);
+            }
+
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                const extension = '.' + file.name.split('.').pop().toLowerCase();
+                if (!ALLOWED_EXTENSIONS.includes(extension)) {
+                    errors.push(`File type not supported. Please use JPEG, PNG, GIF, or WebP images`);
+                } else {
+                    warnings.push(`File type detected as '${file.type || 'unknown'}' but extension suggests valid image`);
+                }
+            }
+            const fileName = file.name.toLowerCase();
+            if (fileName.includes('.pdf') || fileName.includes('.doc') || fileName.includes('.txt')) {
+                errors.push(`This appears to be a document, not an image`);
+            }
+
+            if (file.size > 5 * 1024 * 1024 && file.size <= MAX_FILE_SIZE) {
+                warnings.push(`Large file (${formatFileSize(file.size)}) may take longer to process`);
+            }
+
+            return { errors, warnings };
+        }
+        function checkAndShowPreview() {
+            if (imageStates.image1.loaded && imageStates.image2.loaded) {
+                const previewCard = document.getElementById('previewCard');
+                setTimeout(() => {
+                    previewCard.classList.add('show');
+                }, 100);
+            }
+        }
+
+        function handleFileInput(inputId, wrapperId, imageKey, previewImgId, loadingId, infoId, errorId, warningId) {
+            const input = document.getElementById(inputId);
+            const wrapper = document.getElementById(wrapperId);
+            const textElement = wrapper.querySelector('.file-text');
+            const previewImg = document.getElementById(previewImgId);
+            const loadingElement = document.getElementById(loadingId);
+            const infoElement = document.getElementById(infoId);
+
+            input.addEventListener('change', function (e) {
+                clearMessages(errorId, warningId);
+
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const fileName = file.name;
+                    const validation = validateFile(file);
+
+                    if (validation.errors.length > 0) {
+                        showError(errorId, validation.errors[0]);
+                        input.value = '';
+                        wrapper.classList.remove('has-file');
+                        textElement.innerHTML = `<span class="placeholder">Choose ${imageKey === 'image1' ? 'content' : 'style'} image...</span>`;
+                        return;
+                    }
+
+                    if (validation.warnings.length > 0) {
+                        showWarning(warningId, validation.warnings[0]);
+                    }
+
+                    wrapper.classList.add('has-file');
+                    textElement.innerHTML = `<span class="filename">${fileName}</span>`;
+
+                    loadingElement.style.display = 'flex';
+                    previewImg.style.display = 'none';
+                    infoElement.innerHTML = '';
+
+                    const reader = new FileReader();
+
+                    reader.onload = function (event) {
+                        const img = new Image();
+
+                        img.onload = function () {
+
+                            imageStates[imageKey] = {
+                                loaded: true,
+                                data: event.target.result
+                            };
+
+                            loadingElement.style.display = 'none';
+                            previewImg.style.display = 'block';
+                            previewImg.src = event.target.result;
+
+                            infoElement.innerHTML = `
+                                <div class="info-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                    </svg>
+                                    <span>${img.width} × ${img.height}px</span>
+                                </div>
+                                <div class="info-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <path d="M9 7H7v2h2V7zm0 4H7v2h2v-2zm0-8c-1.11 0-2 .9-2 2h2V3zm4 12h-2v2h2v-2zm6-12v2h2c0-1.1-.9-2-2-2zm-6 0h-2v2h2V3zM9 17v-2H7c0 1.1.89 2 2 2zm10-4h2v-2h-2v2zm0-4h2V7h-2v2zm0 8c1.1 0 2-.9 2-2h-2v2zM5 7H3v12c0 1.1.89 2 2 2h12v-2H5V7zm10-2h2V3h-2v2zm0 12h2v-2h-2v2z"/>
+                                    </svg>
+                                    <span>${formatFileSize(file.size)}</span>
+                                </div>
+                            `;
+
+                            checkAndShowPreview();
+                        };
+
+                        img.onerror = function () {
+                            loadingElement.style.display = 'none';
+                            showError(errorId, 'Failed to load image. The file may be corrupted or in an unsupported format.');
+                            input.value = '';
+                            wrapper.classList.remove('has-file');
+                            textElement.innerHTML = `<span class="placeholder">Choose ${imageKey === 'image1' ? 'content' : 'style'} image...</span>`;
+                            imageStates[imageKey] = { loaded: false, data: null };
+                            const previewCard = document.getElementById('previewCard');
+                            previewCard.classList.remove('show');
+                        };
+                        img.src = event.target.result;
+                    };
+
+                    reader.onerror = function () {
+                        loadingElement.style.display = 'none';
+                        showError(errorId, 'Failed to read file. Please try again.');
+                        input.value = '';
+                        wrapper.classList.remove('has-file');
+                        textElement.innerHTML = `<span class="placeholder">Choose ${imageKey === 'image1' ? 'content' : 'style'} image...</span>`;
+                        imageStates[imageKey] = { loaded: false, data: null };
+                    };
+
+                    reader.readAsDataURL(file);
+                } else {
+                    wrapper.classList.remove('has-file');
+                    textElement.innerHTML = `<span class="placeholder">Choose ${imageKey === 'image1' ? 'content' : 'style'} image...</span>`;
+                    imageStates[imageKey] = { loaded: false, data: null };
+                    const previewCard = document.getElementById('previewCard');
+                    previewCard.classList.remove('show');
+                }
+            });
+        }
+
+        handleFileInput('image1', 'wrapper1', 'image1', 'previewImg1', 'loading1', 'info1', 'error1', 'warning1');
+        handleFileInput('image2', 'wrapper2', 'image2', 'previewImg2', 'loading2', 'info2', 'error2', 'warning2');
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const button = this.querySelector('button[type="submit"]');
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 200);
+        });
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+            if (!imageStates.image1.loaded || !imageStates.image2.loaded) {
+                e.preventDefault();
+                alert('Please select both images before submitting.');
+                return false;
+            }
+        });
+    </script>
 </body>
+
 </html>
