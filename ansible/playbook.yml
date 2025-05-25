@@ -13,10 +13,10 @@
       command: minikube start
       when: minikube_status.rc != 0
       register: minikube_start
+      
 
   roles:
     - mlflow
     - backend
     - frontend
     - monitoring
-    
