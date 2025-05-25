@@ -1,63 +1,3 @@
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: backend-deployment
-#   namespace: default
-# spec:
-#   replicas: 3
-#   selector:
-#     matchLabels:
-#       app: backend
-#   template:
-#     metadata:
-#       labels:
-#         app: backend
-#         annotations:
-#           prometheus.io/scrape: true
-#           prometheus.io/port: 4000
-#     spec:
-#       containers:
-#       - name: backend-container
-#         image: chaudhariakash/tbk:latest
-#         ports:
-#         - containerPort: 5000
-#         - containerPort: 4000
-#         env:
-#         - name: CLOUDINARY_CLOUD_NAME
-#           valueFrom:
-#             secretKeyRef:
-#               name: cloudinary-secrets
-#               key: CLOUDINARY_CLOUD_NAME
-#         - name: CLOUDINARY_API_KEY
-#           valueFrom:
-#             secretKeyRef:
-#               name: cloudinary-secrets
-#               key: CLOUDINARY_API_KEY
-#         - name: CLOUDINARY_API_SECRET
-#           valueFrom:
-#             secretKeyRef:
-#               name: cloudinary-secrets
-#               key: CLOUDINARY_API_SECRET
-#         - name: MLFLOW_TRACKING_URI
-#           value: "http://mlflow-tracking-server:7000"
-#         - name: MODEL_NAME
-#           value: "nst"
-#         resources:
-#           requests:
-#             cpu: 2000m
-#           limits:
-#             cpu: 6000m
-#             memory: 10Gi
-#         volumeMounts:
-#         - name: mlflow-artifacts
-#           mountPath: /mlflow/artifacts
-#       volumes:
-#       - name: mlflow-artifacts
-#         persistentVolumeClaim:
-#           claimName: mlflow-artifacts-pvc
-
-
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -98,6 +38,7 @@ spec:
             secretKeyRef:
               name: cloudinary-secrets
               key: CLOUDINARY_API_SECRET
+              
         - name: MLFLOW_TRACKING_URI
           value: "http://mlflow-tracking-server:7000"
         - name: MODEL_NAME
